@@ -2,19 +2,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:secure/helper/api.dart';
-import 'package:secure/helper/prefs.dart';
-import 'package:secure/login_page.dart';
-import 'package:secure/page/map_page.dart';
-import 'package:secure/page/register_vechile.dart';
+import 'package:secure/page/dashboard.dart';
+import 'package:secure/page/vehicle_register.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class VehicleList extends StatefulWidget {
+  const VehicleList({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<VehicleList> createState() => _VehicleListState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _VehicleListState extends State<VehicleList> {
   final List<Widget> _kendaraan = [];
   @override
   void initState() {
@@ -26,70 +24,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Secure'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Get.to(() => const MapPage());
-            },
-            icon: Icon(Icons.map),
-          ),
-          IconButton(
-            onPressed: () {
-              getData();
-            },
-            icon: Icon(Icons.refresh),
-          ),
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder:
-                    (c) => AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.back();
-                          },
-                          child: const Text('No'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.back();
-                            Api.getData(
-                              context,
-                              "users/logout/${Prefs.readString("username")}",
-                            ).then((val) {
-                              if (val!.status == "success") {
-                                Prefs().clearData();
-                                Get.offAll(() => const LoginPage());
-                              } else {
-                                Get.snackbar(
-                                  val.status!,
-                                  val.message!,
-                                  colorText: Colors.white,
-                                  backgroundColor: Colors.red[900],
-                                );
-                              }
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                          ),
-                          child: const Text(
-                            'Yes',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-              );
-            },
-            icon: Icon(Icons.power_settings_new),
-          ),
-        ],
+        title: const Text('Vehicle List'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.to(() => DashboardPage());
+          },
+        ),
       ),
       body: Container(
         padding: EdgeInsets.all(10),
@@ -100,9 +41,9 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Get.to(() => const RegisterVechile());
+          Get.to(() => const VehicleRegister());
         },
-        child: const Icon(Icons.add),
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -118,7 +59,7 @@ class _HomePageState extends State<HomePage> {
             _kendaraan.add(
               InkWell(
                 onTap: () {
-                  Get.to(() => RegisterVechile(), arguments: item);
+                  Get.to(() => VehicleRegister(), arguments: item);
                 },
                 child: Card(
                   child: Container(
@@ -130,7 +71,9 @@ class _HomePageState extends State<HomePage> {
                           Flexible(
                             flex: 1,
                             child: CachedNetworkImage(
+                              height: 100,
                               imageUrl: item['url_foto'],
+                              fit: BoxFit.contain,
                               placeholder:
                                   (context, url) =>
                                       const CircularProgressIndicator(),
@@ -184,6 +127,17 @@ class _HomePageState extends State<HomePage> {
                                     const Text('Tahun'),
                                     const Text(':'),
                                     Text(item['tahun']),
+                                  ],
+                                ),
+                                TableRow(
+                                  children: [
+                                    const Text('Notifikasi'),
+                                    const Text(':'),
+                                    Text(
+                                      item['is_active'] == '1'
+                                          ? "Active"
+                                          : "Not Active",
+                                    ),
                                   ],
                                 ),
                               ],

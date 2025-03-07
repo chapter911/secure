@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:secure/helper/constant.dart';
 import 'package:secure/login_page.dart';
 import 'package:secure/firebase_options.dart';
 import 'package:secure/helper/firebase_api.dart';
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: warnaPrimary),
       ),
       home: const LoginPage(),
       debugShowCheckedModeBanner: false,

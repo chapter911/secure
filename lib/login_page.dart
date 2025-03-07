@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:secure/helper/api.dart';
 import 'package:secure/helper/prefs.dart';
-import 'package:secure/page/home_page.dart';
+import 'package:secure/page/dashboard.dart';
 import 'package:secure/page/register_page.dart';
 import 'package:secure/style/style.dart';
 
@@ -19,7 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _password = TextEditingController();
 
   bool _isLoading = true;
-  String _fb_token = "";
+  String _fbToken = "";
 
   @override
   void initState() {
@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     getToken();
     Future.delayed(Duration(seconds: 2), () {
       if (Prefs.checkData('username') == true) {
-        Get.offAll(() => HomePage());
+        Get.offAll(() => DashboardPage());
       } else {
         setState(() {
           _isLoading = false;
@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void getToken() async {
-    _fb_token = (await FirebaseMessaging.instance.getToken())!;
+    _fbToken = (await FirebaseMessaging.instance.getToken())!;
   }
 
   @override
@@ -80,17 +80,20 @@ class _LoginPageState extends State<LoginPage> {
                             Api.postData(context, "users/login", {
                               "username": _username.text,
                               "password": _password.text,
-                              "fb_token": _fb_token,
+                              "fb_token": _fbToken,
                             }).then((val) {
                               Get.snackbar(
                                 val!.status!,
                                 val.message!,
                                 colorText: Colors.white,
-                                backgroundColor: Colors.red[900],
+                                backgroundColor:
+                                    val.status == "success"
+                                        ? Colors.green[900]
+                                        : Colors.red[900],
                               );
                               if (val.status == "success") {
                                 Prefs().saveString('username', _username.text);
-                                Get.offAll(() => HomePage());
+                                Get.offAll(() => DashboardPage());
                               }
                             });
                           },

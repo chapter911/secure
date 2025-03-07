@@ -9,22 +9,23 @@ import 'package:image_picker/image_picker.dart';
 import 'package:secure/helper/api.dart';
 import 'package:secure/helper/common_task.dart';
 import 'package:secure/helper/prefs.dart';
-import 'package:secure/page/home_page.dart';
+import 'package:secure/page/vehicle_list.dart';
 import 'package:secure/style/style.dart';
 
-class RegisterVechile extends StatefulWidget {
-  const RegisterVechile({super.key});
+class VehicleRegister extends StatefulWidget {
+  const VehicleRegister({super.key});
 
   @override
-  State<RegisterVechile> createState() => _RegisterVechileState();
+  State<VehicleRegister> createState() => _VehicleRegisterState();
 }
 
-class _RegisterVechileState extends State<RegisterVechile> {
+class _VehicleRegisterState extends State<VehicleRegister> {
   final TextEditingController _nopol = TextEditingController();
   final TextEditingController _tahun = TextEditingController();
 
   String _merk = '- PILIH -';
   String _model = '- PILIH -';
+  String _statusNotif = 'Aktif';
 
   final List<String> _merkList = [
     '- PILIH -',
@@ -60,6 +61,7 @@ class _RegisterVechileState extends State<RegisterVechile> {
       _model = Get.arguments['model'];
       _tahun.text = Get.arguments['tahun'];
       _imageUrl = Get.arguments['url_foto'];
+      _statusNotif = Get.arguments['is_active'] == 1 ? "Aktif" : "Tidak Aktif";
       _isUpdate = true;
       setState(() {});
     }
@@ -69,53 +71,56 @@ class _RegisterVechileState extends State<RegisterVechile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Register Vechile'),
+        title: Text(_isUpdate ? 'Update Vehicle' : 'Register Vechile'),
         actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder:
-                    (c) => AlertDialog(
-                      title: const Text('Hapus'),
-                      content: const Text('Anda yakin untuk menghapus?'),
-                      actions: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Get.back();
-                          },
-                          child: const Text('No'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Api.getData(
-                              context,
-                              "kendaraan/hapus/${_nopol.text}",
-                            ).then((val) {
-                              Get.snackbar(
-                                val!.status!,
-                                val.message!,
-                                colorText: Colors.white,
-                                backgroundColor: Colors.red[900],
-                              );
-                              if (val.status == "success") {
-                                Get.offAll(() => HomePage());
-                              }
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+          Visibility(
+            visible: _isUpdate,
+            child: IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder:
+                      (c) => AlertDialog(
+                        title: const Text('Hapus'),
+                        content: const Text('Anda yakin untuk menghapus?'),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Get.back();
+                            },
+                            child: const Text('No'),
                           ),
-                          child: const Text(
-                            'Yes',
-                            style: TextStyle(color: Colors.white),
+                          ElevatedButton(
+                            onPressed: () {
+                              Api.getData(
+                                context,
+                                "kendaraan/hapus/${_nopol.text}",
+                              ).then((val) {
+                                Get.snackbar(
+                                  val!.status!,
+                                  val.message!,
+                                  colorText: Colors.white,
+                                  backgroundColor: Colors.red[900],
+                                );
+                                if (val.status == "success") {
+                                  Get.offAll(() => VehicleList());
+                                }
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            ),
+                            child: const Text(
+                              'Yes',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-              );
-            },
-            icon: const Icon(Icons.delete),
+                        ],
+                      ),
+                );
+              },
+              icon: const Icon(Icons.delete),
+            ),
           ),
         ],
       ),
@@ -253,6 +258,29 @@ class _RegisterVechileState extends State<RegisterVechile> {
                     FilteringTextInputFormatter.digitsOnly,
                   ],
                 ),
+                const SizedBox(height: 10),
+                Visibility(
+                  visible: _isUpdate,
+                  child: DropdownButtonFormField<String>(
+                    value: _statusNotif,
+                    hint: Text('Status Notifikasi'),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _statusNotif = newValue!;
+                      });
+                    },
+                    items:
+                        ['Aktif', 'Tidak Aktif'].map<DropdownMenuItem<String>>((
+                          String value,
+                        ) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                    decoration: dekorasiInput(hint: 'Status Notifikasi'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -306,6 +334,7 @@ class _RegisterVechileState extends State<RegisterVechile> {
       "model": _model,
       "tahun": _tahun.text,
       "is_update": _isUpdate ? "1" : "0",
+      "is_active": _statusNotif == "Aktif" ? "1" : "0",
       "created_by": Prefs.readString("username"),
       "foto":
           (_image == null
@@ -323,7 +352,7 @@ class _RegisterVechileState extends State<RegisterVechile> {
         backgroundColor: Colors.red[900],
       );
       if (val.status == "success") {
-        Get.offAll(() => HomePage());
+        Get.offAll(() => VehicleList());
       }
     });
   }
