@@ -30,11 +30,11 @@ class _DetectionDetailState extends State<DetectionDetail> {
           Flexible(
             child: FlutterMap(
               options: MapOptions(
-                center: LatLng(
+                initialCenter: LatLng(
                   double.parse(Get.arguments['latitude']),
                   double.parse(Get.arguments['longitude']),
                 ),
-                zoom: 13.0,
+                initialZoom: 13.0,
               ),
               children: [
                 TileLayer(
@@ -50,12 +50,7 @@ class _DetectionDetailState extends State<DetectionDetail> {
                       ),
                       width: 150,
                       height: 150,
-                      builder:
-                          (ctx) => Icon(
-                            Icons.car_crash,
-                            color: Colors.red,
-                            size: 25,
-                          ),
+                      child: Icon(Icons.car_crash, color: Colors.red, size: 25),
                     ),
                   ],
                 ),
