@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:secure/helper/api.dart';
+import 'package:secure/helper/constant.dart';
 import 'package:secure/page/dashboard.dart';
 import 'package:secure/page/vehicle_register.dart';
+import 'package:secure/style/style.dart';
 
 class VehicleList extends StatefulWidget {
   const VehicleList({super.key});
@@ -14,6 +16,8 @@ class VehicleList extends StatefulWidget {
 
 class _VehicleListState extends State<VehicleList> {
   final List<Widget> _kendaraan = [];
+  final TextEditingController _nopol = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -31,6 +35,57 @@ class _VehicleListState extends State<VehicleList> {
             Get.to(() => DashboardPage());
           },
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder:
+                    (c) => AlertDialog(
+                      clipBehavior: Clip.antiAlias,
+                      titlePadding: EdgeInsets.zero,
+                      title: Container(
+                        color: warnaPrimary,
+                        padding: EdgeInsets.all(10),
+                        child: Center(
+                          child: Text(
+                            "Pencarian",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      content: TextField(
+                        controller: _nopol,
+                        decoration: dekorasiInput(
+                          hint: "Nopol",
+                          icon: Icons.numbers,
+                        ),
+                      ),
+                      actions: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _nopol.text = "";
+                            });
+                            Get.back();
+                            getData();
+                          },
+                          child: Text("RESET"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Get.back();
+                            getData();
+                          },
+                          child: Text("CARI"),
+                        ),
+                      ],
+                    ),
+              );
+            },
+            icon: Icon(Icons.search),
+          ),
+        ],
       ),
       body: Container(
         padding: EdgeInsets.all(10),
@@ -52,7 +107,10 @@ class _VehicleListState extends State<VehicleList> {
     setState(() {
       _kendaraan.clear();
     });
-    Api.getData(context, "kendaraan/getList/*").then((val) {
+    Api.getData(
+      context,
+      "kendaraan/getList/${_nopol.text.isEmpty ? "*" : _nopol.text}",
+    ).then((val) {
       if (val!.status == "success") {
         for (var item in val.data!) {
           setState(() {

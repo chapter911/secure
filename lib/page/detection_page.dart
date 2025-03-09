@@ -4,6 +4,7 @@ import 'package:secure/helper/api.dart';
 import 'package:secure/helper/constant.dart';
 import 'package:secure/page/dashboard.dart';
 import 'package:secure/page/detection_detail.dart';
+import 'package:secure/style/style.dart';
 
 class DetectionPage extends StatefulWidget {
   const DetectionPage({super.key});
@@ -14,6 +15,10 @@ class DetectionPage extends StatefulWidget {
 
 class _DetectionPageState extends State<DetectionPage> {
   final List<Widget> _list = [];
+  final TextEditingController _nopol = TextEditingController();
+  final TextEditingController _tanggal = TextEditingController();
+
+  String _status = "- Semua -";
 
   @override
   void initState() {
@@ -32,6 +37,99 @@ class _DetectionPageState extends State<DetectionPage> {
             Get.to(() => DashboardPage());
           },
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Filter'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: _nopol,
+                          decoration: dekorasiInput(
+                            hint: "Nomor Polisi",
+                            icon: Icons.numbers,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        TextField(
+                          controller: _tanggal,
+                          decoration: dekorasiInput(
+                            hint: "Tanggal",
+                            icon: Icons.calendar_month,
+                          ),
+                          onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2101),
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                _tanggal.text =
+                                    pickedDate.toString().split(' ')[0];
+                              });
+                            }
+                          },
+                        ),
+                        SizedBox(height: 10),
+                        DropdownButtonFormField<String>(
+                          value: _status,
+                          hint: Text("Status"),
+                          items:
+                              <String>[
+                                '- Semua -',
+                                'Dikenali',
+                                'Tidak Dikenali',
+                                'Belum Diperiksa',
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                          decoration: dekorasiInput(hint: 'Status'),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              _status = newValue!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text('Reset'),
+                        onPressed: () {
+                          setState(() {
+                            _nopol.text = "";
+                            _tanggal.text = "";
+                            _status = "- Semua -";
+                          });
+                          Get.back();
+                          getData();
+                        },
+                      ),
+                      TextButton(
+                        child: Text('OK'),
+                        onPressed: () {
+                          Get.back();
+                          getData();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            icon: Icon(Icons.search),
+          ),
+        ],
       ),
       body: Container(
         padding: EdgeInsets.all(10),
@@ -46,9 +144,12 @@ class _DetectionPageState extends State<DetectionPage> {
     setState(() {
       _list.clear();
     });
-    Api.getData(context, "kendaraan/getDetection/*").then((val) {
+    Api.postData(context, "kendaraan/getDetection", {
+      "nopol": _nopol.text.isEmpty ? "*" : _nopol.text,
+      "tanggal": _tanggal.text.isEmpty ? "*" : _tanggal.text,
+      "status": _status == "- Semua -" ? "*" : _status,
+    }).then((val) {
       if (val!.status == "success") {
-        print(val.data);
         for (var i = 0; i < val.data!.length; i++) {
           _list.add(
             InkWell(
@@ -76,6 +177,12 @@ class _DetectionPageState extends State<DetectionPage> {
                     ),
                     Container(
                       padding: EdgeInsets.all(10),
+                      color:
+                          val.data![i]['is_recognized'] == null
+                              ? Colors.grey[100]
+                              : (int.parse(val.data![i]['is_recognized']) == 1
+                                  ? Colors.green[100]
+                                  : Colors.red[200]),
                       child: Table(
                         border: const TableBorder(
                           horizontalInside: BorderSide(
