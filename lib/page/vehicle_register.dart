@@ -126,163 +126,156 @@ class _VehicleRegisterState extends State<VehicleRegister> {
       ),
       body: Container(
         padding: EdgeInsets.all(10),
-        child: Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Pilih Sumber Gambar'),
-                          content: SingleChildScrollView(
-                            child: ListBody(
-                              children: <Widget>[
-                                ElevatedButton(
-                                  child: const Text('Kamera'),
-                                  onPressed: () {
-                                    Get.back();
-                                    ambilFoto(ImageSource.camera).then((value) {
-                                      if (value != null) {
-                                        setState(() {
-                                          _image = value;
-                                        });
-                                      }
-                                    });
-                                  },
-                                ),
-                                const SizedBox(height: 10),
-                                ElevatedButton(
-                                  child: const Text('Galeri'),
-                                  onPressed: () {
-                                    Get.back();
-                                    ambilFoto(ImageSource.gallery).then((
-                                      value,
-                                    ) {
-                                      if (value != null) {
-                                        setState(() {
-                                          _image = value;
-                                        });
-                                      }
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Pilih Sumber Gambar'),
+                        content: SingleChildScrollView(
+                          child: ListBody(
+                            children: <Widget>[
+                              ElevatedButton(
+                                child: const Text('Kamera'),
+                                onPressed: () {
+                                  Get.back();
+                                  ambilFoto(ImageSource.camera).then((value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        _image = value;
+                                      });
+                                    }
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                child: const Text('Galeri'),
+                                onPressed: () {
+                                  Get.back();
+                                  ambilFoto(ImageSource.gallery).then((value) {
+                                    if (value != null) {
+                                      setState(() {
+                                        _image = value;
+                                      });
+                                    }
+                                  });
+                                },
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    );
-                  },
-                  child: Container(
-                    width: 100,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child:
-                        _isUpdate && _image == null
-                            ? CachedNetworkImage(
-                              imageUrl: _imageUrl,
-                              fit: BoxFit.fill,
-                              placeholder:
-                                  (context, url) =>
-                                      const CircularProgressIndicator(),
-                              errorWidget:
-                                  (context, url, error) =>
-                                      const Icon(Icons.error),
-                            )
-                            : (_image == null
-                                ? Icon(
-                                  Icons.camera_alt,
-                                  color: Colors.grey[700],
-                                )
-                                : Image.file(
-                                  _image!,
-                                  filterQuality: FilterQuality.high,
-                                  fit: BoxFit.fill,
-                                )),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _nopol,
-                  readOnly: _isUpdate,
-                  decoration: dekorasiInput(hint: 'Nomor Polisi'),
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _merk,
-                  hint: Text('Merk'),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _merk = newValue!;
-                    });
-                  },
-                  items:
-                      _merkList.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                  decoration: dekorasiInput(hint: 'Merk'),
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: _model,
-                  hint: Text('Model'),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _model = newValue!;
-                    });
-                  },
-                  items:
-                      _modelList.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                  decoration: dekorasiInput(hint: 'Model'),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _tahun,
-                  decoration: dekorasiInput(hint: 'Tahun'),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Visibility(
-                  visible: _isUpdate,
-                  child: DropdownButtonFormField<String>(
-                    value: _statusNotif,
-                    hint: Text('Status Notifikasi'),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _statusNotif = newValue!;
-                      });
+                        ),
+                      );
                     },
-                    items:
-                        ['Aktif', 'Tidak Aktif'].map<DropdownMenuItem<String>>((
-                          String value,
-                        ) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                    decoration: dekorasiInput(hint: 'Status Notifikasi'),
+                  );
+                },
+                child: Container(
+                  width: 100,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  child:
+                      _isUpdate && _image == null
+                          ? CachedNetworkImage(
+                            imageUrl: _imageUrl,
+                            fit: BoxFit.fill,
+                            placeholder:
+                                (context, url) =>
+                                    const CircularProgressIndicator(),
+                            errorWidget:
+                                (context, url, error) =>
+                                    const Icon(Icons.error),
+                          )
+                          : (_image == null
+                              ? Icon(Icons.camera_alt, color: Colors.grey[700])
+                              : Image.file(
+                                _image!,
+                                filterQuality: FilterQuality.high,
+                                fit: BoxFit.fill,
+                              )),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _nopol,
+                readOnly: _isUpdate,
+                decoration: dekorasiInput(hint: 'Nomor Polisi'),
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: _merk,
+                hint: Text('Merk'),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _merk = newValue!;
+                  });
+                },
+                items:
+                    _merkList.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                decoration: dekorasiInput(hint: 'Merk'),
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: _model,
+                hint: Text('Model'),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _model = newValue!;
+                  });
+                },
+                items:
+                    _modelList.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                decoration: dekorasiInput(hint: 'Model'),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _tahun,
+                decoration: dekorasiInput(hint: 'Tahun'),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+              ),
+              const SizedBox(height: 10),
+              Visibility(
+                visible: _isUpdate,
+                child: DropdownButtonFormField<String>(
+                  value: _statusNotif,
+                  hint: Text('Status Notifikasi'),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _statusNotif = newValue!;
+                    });
+                  },
+                  items:
+                      ['Aktif', 'Tidak Aktif'].map<DropdownMenuItem<String>>((
+                        String value,
+                      ) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                  decoration: dekorasiInput(hint: 'Status Notifikasi'),
+                ),
+              ),
+            ],
           ),
         ),
       ),

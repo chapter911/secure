@@ -133,9 +133,7 @@ class _DetectionPageState extends State<DetectionPage> {
       ),
       body: Container(
         padding: EdgeInsets.all(10),
-        child: Expanded(
-          child: SingleChildScrollView(child: Column(children: _list)),
-        ),
+        child: SingleChildScrollView(child: Column(children: _list)),
       ),
     );
   }
